@@ -7,7 +7,7 @@ CXXFLAGS =	-O2  -Wall -fmessage-length=0  -std=c++11
 OBJS =		openGLvisulizer.o Visualizer.o
 LOBJS =		Visualizer.o
 
-LIBS =      -lGL -lsfml-system -lsfml-window -lsfml-graphics -lGLEW -lSOIL -pthread 
+LIBS =      -lGL -lsfml-system -lsfml-window -lsfml-graphics -lGLEW -lSOIL -pthread -lX11
 
 TARGET =	libminglvisualizer.a
 

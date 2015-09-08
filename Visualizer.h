@@ -14,6 +14,7 @@
 #include <GL/glew.h>
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
+#include <thread>
 
 /// Class to visulize a system of discs
 /** This class is used to visulize DEM results using openGL 3.2 or higher
@@ -64,11 +65,19 @@ public:
 	const int& getNparticle() const {
 		return Nparticle; ///< number of particles
 	}
-	void updateimage(); ///< draw the image
-	void close() {window->close();} ///< close the gl window
+	void updateimage() {graphicsNeedsUpdate=true;}; ///< draw the image
 
-	void snapshot(char* filename) {
-		window->capture().saveToFile(filename);
+	/// close the gl window
+	void close() {
+		puts("Close Window \n");
+		windowMustClosed=true;
+	}
+
+	void snapshot(const char* filename) {
+		if(window->isOpen()) {
+			window->capture().saveToFile(filename);
+		} else
+			puts("Visualisation window is not open, no snapshot was created!\n");
 	}
 
 
@@ -90,7 +99,18 @@ private:
 	GLuint shaderProgram; ///<pointer to the shader program
 	GLuint vertexArrayObject; ///<vertx array object index
 
+	std::thread *visthread=nullptr; ///<Thread for openGL output
+	bool graphicsNeedsUpdate=false; ///<Flag wich indicate that the GL thread
+	                                /// should update the windwo
+	bool windowMustClosed=false;  ///< flag to close the thread
+
+
+
+
 	int acticeWriteBuffer=0;
+
+	/// The gl main loop
+	void glMainloop();
 
 	///Compile a Shader file
 	GLuint loadAndCompileShader(

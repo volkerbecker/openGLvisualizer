@@ -23,9 +23,10 @@ int main(void) {
 	for(int i=0;i<100;++i) {
 		particles[0]=(float)i;
 		output.updateimage();
-		usleep(10000);
+		usleep(20000);
 	}
-	output.snapshot("test.png");
+	//output.snapshot("test.png");
+	output.close();
 	puts("!!!Hello World!!!");
 	return EXIT_SUCCESS;
 }

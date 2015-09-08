@@ -13,8 +13,10 @@
 #include <fstream>
 #include <string>
 #include <stdio.h>
+#include <X11/Xlib.h>
 
 Visualizer::Visualizer() {
+	XInitThreads();
 	initializeWindow(800,800);
 }
 
@@ -31,6 +33,11 @@ Visualizer::~Visualizer() {
 	if(this->window != nullptr) {
 			window->close();
 			delete window;}
+	if(visthread!=nullptr) {
+		visthread->join(); //warte bis thread beendet
+		delete visthread;
+		visthread=nullptr;
+	}
 
 }
 
@@ -112,31 +119,45 @@ void Visualizer::initializeGL(const int &sides) {
 	GLuint uniSides=glGetUniformLocation(shaderProgram,"sides");
 	glUniform1i(uniSides,sides);
 	this->glinitokay=true;
+	window->setActive(false); // deactivate window to allow the other thread to use it
+	visthread=new std::thread(&Visualizer::glMainloop,this); //starte glMainloop
 }
 
-void Visualizer::updateimage() {
-	glBufferData(GL_ARRAY_BUFFER,Nparticle*2*sizeof(GLfloat), particles,
+
+void Visualizer::glMainloop() {
+	while (window->isOpen()) {
+		//evaluate events
+		sf::Event windowEvent;
+		while (window->pollEvent(windowEvent)) {
+			switch (windowEvent.type) {
+			case sf::Event::Closed:
+				window->close();
+				puts("Window terminated by user \n");
+				break;
+			default:
+				break;
+			}
+		}
+		//if neccessary, update the graphics
+		if (graphicsNeedsUpdate) {
+			glBufferData(GL_ARRAY_BUFFER, Nparticle * 2 * sizeof(GLfloat),
+					particles,
 					GL_DYNAMIC_DRAW); //write positions to buffer
-	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
+			glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT);
 
-	glDrawArrays(GL_POINTS, 0, Nparticle);
-	//glFinish();
-	window->display();
-
-	//evaluate events
-	sf::Event windowEvent;
-	while (window->pollEvent(windowEvent)) {
-		switch (windowEvent.type) {
-		case sf::Event::Closed:
+			glDrawArrays(GL_POINTS, 0, Nparticle);
+			window->display();
+			graphicsNeedsUpdate=false;
+		}
+		if(windowMustClosed) {
 			window->close();
-			puts("Window terminated by user \n");
-			exit(EXIT_SUCCESS);
-			break;
-		default:
+			puts("Window terminated by function call \n");
+			windowMustClosed=false;
 			break;
 		}
 	}
+	puts("visualization thread ready, good by...\n ");
 }
 
 GLuint Visualizer::loadAndCompileShader(const GLenum &type, const char* filename) const{
