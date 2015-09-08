@@ -1,0 +1,13 @@
+#ignore backup files
+*~ 
+#ingnore Object files,bilder etc
+*.o
+*.png
+*.a
+#ignore Documentation Folder (create it local using doxygen)
+documentation/*
+#ignore executable
+openGLvisulizer
+#ignore eclipse projekt file
+.cproject
+.project
