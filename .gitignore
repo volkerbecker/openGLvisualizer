@@ -4,6 +4,7 @@
 *.o
 *.png
 *.a
+*.d
 #ignore Documentation Folder (create it local using doxygen)
 documentation/*
 #ignore executable
