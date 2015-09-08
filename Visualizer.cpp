@@ -30,13 +30,14 @@ Visualizer::~Visualizer() {
 		glDeleteVertexArrays(1,&vertexArrayObject);
 		delete vertexBufferObject;
 	}
-	if(this->window != nullptr) {
-			window->close();
-			delete window;}
 	if(visthread!=nullptr) {
-		visthread->join(); //warte bis thread beendet
+		this->close(); //warte bis thread beendet
 		delete visthread;
 		visthread=nullptr;
+	}
+	if(this->window != nullptr) {
+		window->close();
+		delete window;
 	}
 
 }
@@ -87,9 +88,9 @@ void Visualizer::initializeGL(const int &sides) {
 
 
 	// Shader Compilation
-	vertexShader = loadAndCompileShader(GL_VERTEX_SHADER,"/home/becker/workspace/openGLvisulizer/vertexShader.gls");
-	geometryShader = loadAndCompileShader(GL_GEOMETRY_SHADER,"/home/becker/workspace/openGLvisulizer/geometryShader.gls");
-	fragmentShader = loadAndCompileShader(GL_FRAGMENT_SHADER,"/home/becker/workspace/openGLvisulizer/fragmentShader.gls");
+	vertexShader = loadAndCompileShader(GL_VERTEX_SHADER,"/home/becker/workspace/openGLvisualizer/vertexShader.gls");
+	geometryShader = loadAndCompileShader(GL_GEOMETRY_SHADER,"/home/becker/workspace/openGLvisualizer/geometryShader.gls");
+	fragmentShader = loadAndCompileShader(GL_FRAGMENT_SHADER,"/home/becker/workspace/openGLvisualizer/fragmentShader.gls");
 
 	// Link the shaders to a shader program
 	// Link the vertex and fragment shader into a shader program
@@ -125,6 +126,7 @@ void Visualizer::initializeGL(const int &sides) {
 
 
 void Visualizer::glMainloop() {
+	window->setActive();
 	while (window->isOpen()) {
 		//evaluate events
 		sf::Event windowEvent;
@@ -138,8 +140,13 @@ void Visualizer::glMainloop() {
 				break;
 			}
 		}
-		//if neccessary, update the graphics
-		if (graphicsNeedsUpdate) {
+		//thread "events" todo: Replace by an thread save queue
+		if(takeSnapshot) {
+			snapshotmutex.lock();
+			window->capture().saveToFile(this->filename);
+			snapshotmutex.unlock();
+		}
+		if(graphicsNeedsUpdate) {
 			glBufferData(GL_ARRAY_BUFFER, Nparticle * 2 * sizeof(GLfloat),
 					particles,
 					GL_DYNAMIC_DRAW); //write positions to buffer
@@ -154,7 +161,6 @@ void Visualizer::glMainloop() {
 			window->close();
 			puts("Window terminated by function call \n");
 			windowMustClosed=false;
-			break;
 		}
 	}
 	puts("visualization thread ready, good by...\n ");

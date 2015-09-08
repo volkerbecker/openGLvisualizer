@@ -15,6 +15,7 @@
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
 #include <thread>
+#include <mutex>
 
 /// Class to visulize a system of discs
 /** This class is used to visulize DEM results using openGL 3.2 or higher
@@ -65,19 +66,26 @@ public:
 	const int& getNparticle() const {
 		return Nparticle; ///< number of particles
 	}
-	void updateimage() {graphicsNeedsUpdate=true;}; ///< draw the image
+
+	/// update the image
+	void updateimage() {
+		graphicsNeedsUpdate=true;
+	};
 
 	/// close the gl window
 	void close() {
-		puts("Close Window \n");
-		windowMustClosed=true;
+		if(visthread->joinable()) {
+			puts("Close Window \n");
+			windowMustClosed=true;
+			visthread->join();
+		}
 	}
 
 	void snapshot(const char* filename) {
-		if(window->isOpen()) {
-			window->capture().saveToFile(filename);
-		} else
-			puts("Visualisation window is not open, no snapshot was created!\n");
+		snapshotmutex.lock();
+		this->filename=filename;
+		takeSnapshot=true;
+		snapshotmutex.unlock();
 	}
 
 
@@ -99,13 +107,15 @@ private:
 	GLuint shaderProgram; ///<pointer to the shader program
 	GLuint vertexArrayObject; ///<vertx array object index
 
+	std::mutex snapshotmutex;
 	std::thread *visthread=nullptr; ///<Thread for openGL output
-	bool graphicsNeedsUpdate=false; ///<Flag wich indicate that the GL thread
-	                                /// should update the windwo
+
+	///Events for the thread in the thread, should replaced by
+	///an event queue
+	bool graphicsNeedsUpdate=false; ///<Flag wich indicate that the GL thread                                /// should update the windwo
 	bool windowMustClosed=false;  ///< flag to close the thread
-
-
-
+	bool takeSnapshot=false;
+	const char* filename; ///<filename
 
 	int acticeWriteBuffer=0;
 
