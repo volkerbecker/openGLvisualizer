@@ -27,4 +27,4 @@ $(TARGET):	$(OBJS)
 all:	$(TARGET)
 
 clean:
-	rm -f $(OBJS) $(TARGET) $(secondTarget)
+	rm -f $(OBJS) $(TARGET) $(secondTarget) *.d
