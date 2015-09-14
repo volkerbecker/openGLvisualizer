@@ -26,6 +26,8 @@
 class Visualizer {
 public:
 	Visualizer(); ///< standart Konstruktur - 800x600, no antialising;
+	Visualizer(const int &width ///< Windows width
+			,const int &hight); ///< Windows hight
 	~Visualizer();
 
 	///initialize openGL window

@@ -20,6 +20,11 @@ Visualizer::Visualizer() {
 	initializeWindow(800,800);
 }
 
+Visualizer::Visualizer(const int & width,const int & hight) {
+	XInitThreads();
+	initializeWindow(width,hight);
+}
+
 Visualizer::~Visualizer() {
 	if(glinitokay) {
 		glDeleteProgram(shaderProgram);
