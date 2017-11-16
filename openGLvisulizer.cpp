@@ -25,7 +25,7 @@ int main(void) {
 		output.updateimage();
 		usleep(20000);
 	}
-	output.snapshot("test.png");
+	//output.snapshot("test.png");
 	output.close();
 	puts("!!!Hello World!!!");
 	return EXIT_SUCCESS;

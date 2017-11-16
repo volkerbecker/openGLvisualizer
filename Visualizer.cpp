@@ -93,9 +93,9 @@ void Visualizer::initializeGL(const int &sides) {
 
 
 	// Shader Compilation
-	vertexShader = loadAndCompileShader(GL_VERTEX_SHADER,"/home/becker/workspace/openGLvisualizer/vertexShader.gls");
-	geometryShader = loadAndCompileShader(GL_GEOMETRY_SHADER,"/home/becker/workspace/openGLvisualizer/geometryShader.gls");
-	fragmentShader = loadAndCompileShader(GL_FRAGMENT_SHADER,"/home/becker/workspace/openGLvisualizer/fragmentShader.gls");
+	vertexShader = loadAndCompileShader(GL_VERTEX_SHADER,"/home/volker/projekte/openGLvisualizer/vertexShader.gls");
+	geometryShader = loadAndCompileShader(GL_GEOMETRY_SHADER,"/home/volker/projekte/openGLvisualizer/geometryShader.gls");
+	fragmentShader = loadAndCompileShader(GL_FRAGMENT_SHADER,"/home/volker/projekte/openGLvisualizer/fragmentShader.gls");
 
 	// Link the shaders to a shader program
 	// Link the vertex and fragment shader into a shader program
